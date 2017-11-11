@@ -26,6 +26,11 @@ public class MainActivity
         , SearchView.OnQueryTextListener {
 
     private final static int LOADER_ID = 0;
+    private final static int NO_DATA_ID = 1;
+    private final static int NO_NETWORK_ID = 2;
+    private final static int GOOD_ID = 3;
+    private final static int LOADING_ID = 4;
+
     private final String URL_QUERY = "https://www.googleapis.com/books/v1/volumes?q=";
     private String fullUrl;
     private ArrayList<Book> books;
@@ -34,6 +39,7 @@ public class MainActivity
     private final String LOG_MSG_CLASS = MainActivity.class.getSimpleName();
     private View empty;
     private View disconnected;
+    private View loading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +49,7 @@ public class MainActivity
         listView = (ListView) findViewById(R.id.book_list_view);
         empty = findViewById(R.id.empty);
         disconnected = findViewById(R.id.disconnected);
+        loading = findViewById(R.id.loading);
         doBookSearch(searchKey);
 
     }
@@ -58,27 +65,26 @@ public class MainActivity
 
     @Override
     public Loader<ArrayList<Book>> onCreateLoader(int id, Bundle args) {
+        handleStates(LOADING_ID);
+
         return new BookTaskLoader(getApplicationContext(), fullUrl);
     }
 
     @Override
     public void onLoadFinished(Loader<ArrayList<Book>> loader, ArrayList<Book> data) {
         Log.d(LOG_MSG_CLASS, "onLoadFinished");
+
         if (data != null) {
             books = new ArrayList<>();
             books.addAll(data);
 
-            listView.setVisibility(View.VISIBLE);
-            empty.setVisibility(View.GONE);
-            disconnected.setVisibility(View.GONE);
+            handleStates(GOOD_ID);
 
             bookListAdapter = new BookListAdapter(this, books);
             listView.setAdapter(bookListAdapter);
         } else {
             Log.d(LOG_MSG_CLASS, "onLoadFinished : No Data");
-            listView.setVisibility(View.GONE);
-            empty.setVisibility(View.VISIBLE);
-            disconnected.setVisibility(View.GONE);
+            handleStates(NO_DATA_ID);
         }
     }
 
@@ -105,21 +111,17 @@ public class MainActivity
 
     public void doBookSearch(String key) {
         if (isConnectedToInternet()) {
-            listView.setVisibility(View.VISIBLE);
-            empty.setVisibility(View.GONE);
-            disconnected.setVisibility(View.GONE);
-
-            Log.d(LOG_MSG_CLASS, "doBookSearch : " + key);
+            handleStates(GOOD_ID);
             String key_no_spaced = key.replaceAll(" ", "").toLowerCase();
-            Log.d(LOG_MSG_CLASS, "doBookSearch : " + key_no_spaced);
             fullUrl = URL_QUERY + key_no_spaced;
+
+            Log.d(LOG_MSG_CLASS, "doBookSearch : " + key_no_spaced);
             Log.d(LOG_MSG_CLASS, "doBookSearch : " + fullUrl);
             getSupportLoaderManager().destroyLoader(LOADER_ID);
+
             getSupportLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
         } else {
-            listView.setVisibility(View.GONE);
-            disconnected.setVisibility(View.VISIBLE);
-            empty.setVisibility(View.GONE);
+            handleStates(NO_NETWORK_ID);
         }
     }
 
@@ -133,4 +135,32 @@ public class MainActivity
         return netState;
     }
 
+    public void handleStates(int stateId) {
+        switch (stateId) {
+            case NO_DATA_ID:
+                listView.setVisibility(View.GONE);
+                empty.setVisibility(View.VISIBLE);
+                disconnected.setVisibility(View.GONE);
+                loading.setVisibility(View.GONE);
+                break;
+            case NO_NETWORK_ID:
+                listView.setVisibility(View.GONE);
+                disconnected.setVisibility(View.VISIBLE);
+                empty.setVisibility(View.GONE);
+                loading.setVisibility(View.GONE);
+                break;
+            case LOADING_ID:
+                listView.setVisibility(View.GONE);
+                disconnected.setVisibility(View.GONE);
+                empty.setVisibility(View.GONE);
+                loading.setVisibility(View.VISIBLE);
+                break;
+            default:
+                listView.setVisibility(View.VISIBLE);
+                empty.setVisibility(View.GONE);
+                disconnected.setVisibility(View.GONE);
+                loading.setVisibility(View.GONE);
+                break;
+        }
+    }
 }
