@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,11 +42,11 @@ public class QueryUtils {
     }
 
     public ArrayList<Book> extractBookFeature(String jsonResponse) throws JSONException {
-        Book book = null;
+        Book book ;
         ArrayList<Book> books = new ArrayList<>();
         JSONObject root = new JSONObject(jsonResponse);
         JSONArray items = root.getJSONArray("items");
-        Log.d(LOG_MSG_CLASS, String.valueOf(items.length()));
+        Log.d(LOG_MSG_CLASS, "extractBookFeature : "+String.valueOf(items.length()));
 
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
@@ -57,7 +59,7 @@ public class QueryUtils {
                 break;
             } else {
                 book = new Book(title, publisher, thumbnail);
-                Log.d(LOG_MSG_CLASS, i + " - " + title + "\n    " + publisher + "\n    " + thumbnail);
+//                Log.d(LOG_MSG_CLASS, i + " - " + title + "\n    " + publisher + "\n    " + thumbnail);
                 books.add(book);
             }
 
@@ -88,8 +90,6 @@ public class QueryUtils {
             urlConnection.connect();
             if (urlConnection.getResponseCode() == 200) {
                 jsonResponse = readFromInputStream(urlConnection.getInputStream());
-            } else {
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -109,7 +109,7 @@ public class QueryUtils {
             return null;
         }
         StringBuilder builder = new StringBuilder();
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
         BufferedReader bufferReader = new BufferedReader(inputStreamReader);
         try {
             String line = bufferReader.readLine();

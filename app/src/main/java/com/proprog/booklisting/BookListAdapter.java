@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,11 +26,14 @@ import butterknife.ButterKnife;
 
 public class BookListAdapter extends ArrayAdapter<Book> {
     private Context context;
-//    private ArrayList<Book> bookProviders;
+    private ArrayList<Book> bookProviders;
+    private final String LOG_MSG_CLASS = BookListAdapter.class.getSimpleName();
+
     public BookListAdapter(@NonNull Context context, @NonNull ArrayList<Book> books) {
         super(context, 0, books);
         this.context = context;
-//        this.bookProviders = books;
+        bookProviders = new ArrayList<>();
+        this.bookProviders = books;
     }
 
     @NonNull
@@ -44,11 +48,12 @@ public class BookListAdapter extends ArrayAdapter<Book> {
         } else {
             holder = (ViewHolder) bookItemView.getTag();
         }
-        Book book = getItem(position);
+        Book book = bookProviders.get(position);
         if (book != null) {
             holder.bookTitle.setText(book.getTitle());
             holder.bookPublisher.setText(book.getPublisher());
             Picasso.with(context).load(book.getThumbnail()).into(holder.bookImage);
+            Log.d(LOG_MSG_CLASS, "getView : " + bookItemView.getPaddingTop());
         }
         return bookItemView;
     }
@@ -66,9 +71,13 @@ public class BookListAdapter extends ArrayAdapter<Book> {
         }
 
     }
-//    public void setFilter(ArrayList<Book> books){
-//        bookProviders = new ArrayList<>();
-//        bookProviders.addAll(books);
-//        notifyDataSetChanged();
-//    }
+
+    public void setFilter(String key) {
+        if (key.length() == 0) {
+        } else {
+            bookProviders.clear();
+
+        }
+        notifyDataSetChanged();
+    }
 }
