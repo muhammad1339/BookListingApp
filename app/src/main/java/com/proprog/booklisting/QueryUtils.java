@@ -19,6 +19,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.R.attr.thumbnail;
+
 /**
  * Created by mohamedAHMED on 2017-11-10.
  */
@@ -26,44 +28,58 @@ import java.util.List;
 public class QueryUtils {
 
     private final String LOG_MSG_CLASS = QueryUtils.class.getSimpleName();
+    public static boolean IS_URL_GOOD = true;
+
+
 
     public ArrayList<Book> fetchBookData(String queryUrl) {
         //prepare url
         URL url = createURL(queryUrl);
         //fetch json data from url
         String jsonResponse = makeHttpRequest(url);
-        ArrayList<Book> books = null;
-        try {
-            books = extractBookFeature(jsonResponse);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        ArrayList<Book> books ;
+        books = extractBookFeature(jsonResponse);
+
         return books;
     }
 
-    public ArrayList<Book> extractBookFeature(String jsonResponse) throws JSONException {
-        Book book ;
+    public ArrayList<Book> extractBookFeature(String jsonResponse) {
+        Book book;
         ArrayList<Book> books = new ArrayList<>();
-        JSONObject root = new JSONObject(jsonResponse);
-        JSONArray items = root.getJSONArray("items");
-        Log.d(LOG_MSG_CLASS, "extractBookFeature : "+String.valueOf(items.length()));
+        JSONObject root;
+        try {
+            root = new JSONObject(jsonResponse);
+            JSONArray items = root.optJSONArray("items");
+            if(items != null){
+                Log.d(LOG_MSG_CLASS, "extractBookFeature : " + String.valueOf(items.length()));
 
-        for (int i = 0; i < items.length(); i++) {
-            JSONObject item = items.getJSONObject(i);
-            JSONObject volumeInfo = item.getJSONObject("volumeInfo");
-            JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
-            String title = volumeInfo.getString("title");
-            String publisher = volumeInfo.getString("publisher");
-            String thumbnail = imageLinks.getString("thumbnail");
-            if (publisher.length()==0) {
-                break;
-            } else {
-                book = new Book(title, publisher, thumbnail);
+                for (int i = 0; i < items.length(); i++) {
+                    JSONObject item = items.getJSONObject(i);
+                    JSONObject volumeInfo = item.getJSONObject("volumeInfo");
+                    JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
+                    String title = volumeInfo.getString("title");
+                    String publisher = volumeInfo.getString("publisher");
+                    String thumbnail = imageLinks.getString("thumbnail");
+                    if (publisher.length() == 0) {
+                        break;
+                    } else {
+                        IS_URL_GOOD = true;
+                        book = new Book(title, publisher, thumbnail);
 //                Log.d(LOG_MSG_CLASS, i + " - " + title + "\n    " + publisher + "\n    " + thumbnail);
-                books.add(book);
+                        books.add(book);
+                    }
+                }
+            }else{
+                Log.d(LOG_MSG_CLASS,"No Items");
+                IS_URL_GOOD = false;
             }
 
+        } catch (JSONException e) {
+            Log.d(LOG_MSG_CLASS,"JSON Exception"+ e.getMessage());
+            IS_URL_GOOD = false;
         }
+
+
         return books;
     }
 

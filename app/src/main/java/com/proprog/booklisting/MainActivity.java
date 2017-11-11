@@ -31,7 +31,7 @@ public class MainActivity
     private final static int GOOD_ID = 3;
     private final static int LOADING_ID = 4;
 
-    private final String URL_QUERY = "https://www.googleapis.com/books/v1/volumes?q=";
+    private final static String URL_QUERY = "https://www.googleapis.com/books/v1/volumes?q=";
     private String fullUrl;
     private ArrayList<Book> books;
     private ListView listView;
@@ -74,7 +74,7 @@ public class MainActivity
     public void onLoadFinished(Loader<ArrayList<Book>> loader, ArrayList<Book> data) {
         Log.d(LOG_MSG_CLASS, "onLoadFinished");
 
-        if (data != null) {
+        if (data != null && QueryUtils.IS_URL_GOOD) {
             books = new ArrayList<>();
             books.addAll(data);
 
@@ -105,8 +105,7 @@ public class MainActivity
     @Override
     public boolean onQueryTextChange(String newText) {
         //to show the search view is working properly
-        doBookSearch(newText);
-        return true;
+        return false;
     }
 
     public void doBookSearch(String key) {
