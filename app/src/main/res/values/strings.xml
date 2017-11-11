@@ -2,6 +2,6 @@
     <string name="app_name">Book Listing</string>
     <string name="string_search">Search Books</string>
     <string name="loading_string">just a moment ....</string>
-    <string name="no_network_string">NO NETWORK!</string>
-    <string name="no_data_string">NO DATA!</string>
+    <string name="no_network_string">NO NETWORK!\nPlease, Check Your Wifi or Mobile Data</string>
+    <string name="no_data_string">Sorry No Books Matches This Word!\nTry to use another book name , publisher, ISBN, ...</string>
 </resources>
