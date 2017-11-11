@@ -52,7 +52,6 @@ public class QueryUtils {
             JSONArray items = root.optJSONArray("items");
             if(items != null){
                 Log.d(LOG_MSG_CLASS, "extractBookFeature : " + String.valueOf(items.length()));
-
                 for (int i = 0; i < items.length(); i++) {
                     JSONObject item = items.getJSONObject(i);
                     JSONObject volumeInfo = item.getJSONObject("volumeInfo");
