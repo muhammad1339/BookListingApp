@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Book Listing</string>
+    <string name="string_search">Search</string>
+    <string name="string_search_hint">Search Books</string>
+</resources>
